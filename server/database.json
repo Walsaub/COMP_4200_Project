@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "nick",
+      "email": "nick@test.com",
+      "password": "$2a$10$50tAc9/XJgLA8xRgnhdd9OJ8MwzHpTaVTHmbL73hCguPWFOEOayHm",
+      "created_at": "2026-03-15T03:56:00.408Z"
+    }
+  ],
+  "posts": []
+}

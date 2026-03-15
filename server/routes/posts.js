@@ -1,6 +1,5 @@
-const express = require('express');
-const db = require('../db');
-const requireAuth = require('../middleware/auth');
+import express from 'express';
+import db from '../db.js';
 
 const router = express.Router();
 
@@ -20,15 +19,15 @@ router.get('/:id', async (req, res) => {
   } catch { res.status(500).json({ error: 'Server error' }); }
 });
 
-// POST /api/posts — create listing (auth required)
-router.post('/', requireAuth, async (req, res) => {
-  const { title, description, make, model, year, price, mileage, image_url } = req.body;
-  if (!title || !make || !model || !year || !price) {
-    return res.status(400).json({ error: 'title, make, model, year, and price are required' });
+// POST /api/posts — create listing
+router.post('/', async (req, res) => {
+  const { user_id, title, description, make, model, year, price, mileage, image_url } = req.body;
+  if (!user_id || !title || !make || !model || !year || !price) {
+    return res.status(400).json({ error: 'user_id, title, make, model, year, and price are required' });
   }
   try {
     const post = await db.createPost({
-      user_id: req.user.id,
+      user_id: Number(user_id),
       title, description, make, model,
       year: Number(year),
       price: Number(price),
@@ -39,12 +38,12 @@ router.post('/', requireAuth, async (req, res) => {
   } catch { res.status(500).json({ error: 'Server error' }); }
 });
 
-// PUT /api/posts/:id — update listing (auth required, must own post)
-router.put('/:id', requireAuth, async (req, res) => {
+// PUT /api/posts/:id — update listing (must own post)
+router.put('/:id', async (req, res) => {
   try {
     const post = await db.getPostById(Number(req.params.id));
     if (!post) return res.status(404).json({ error: 'Post not found' });
-    if (post.user_id !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
+    if (post.user_id !== Number(req.body.user_id)) return res.status(403).json({ error: 'Forbidden' });
 
     const { title, description, make, model, year, price, mileage, image_url } = req.body;
     const updated = await db.updatePost(Number(req.params.id), {
@@ -61,16 +60,16 @@ router.put('/:id', requireAuth, async (req, res) => {
   } catch { res.status(500).json({ error: 'Server error' }); }
 });
 
-// DELETE /api/posts/:id — delete listing (auth required, must own post)
-router.delete('/:id', requireAuth, async (req, res) => {
+// DELETE /api/posts/:id — delete listing (must own post)
+router.delete('/:id', async (req, res) => {
   try {
     const post = await db.getPostById(Number(req.params.id));
     if (!post) return res.status(404).json({ error: 'Post not found' });
-    if (post.user_id !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
+    if (post.user_id !== Number(req.body.user_id)) return res.status(403).json({ error: 'Forbidden' });
 
     await db.deletePost(Number(req.params.id));
     res.json({ message: 'Post deleted' });
   } catch { res.status(500).json({ error: 'Server error' }); }
 });
 
-module.exports = router;
+export default router;

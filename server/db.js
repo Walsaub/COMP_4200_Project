@@ -1,4 +1,5 @@
-const { Pool } = require('pg');
+import pg from 'pg';
+const { Pool } = pg;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -33,7 +34,7 @@ async function init() {
 const db = {
   init,
 
-  // ── Users ──────────────────────────────────────────────────────────────────
+  // Users
   async createUser({ username, email, password }) {
     const { rows } = await pool.query(
       'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email, created_at',
@@ -47,7 +48,7 @@ const db = {
     return rows[0] ?? null;
   },
 
-  // ── Posts ───────────────────────────────────────────────────────────────────
+  // Posts
   async createPost({ user_id, title, description, make, model, year, price, mileage, image_url }) {
     const { rows } = await pool.query(
       `INSERT INTO posts (user_id, title, description, make, model, year, price, mileage, image_url)
@@ -90,4 +91,4 @@ const db = {
   },
 };
 
-module.exports = db;
+export default db;

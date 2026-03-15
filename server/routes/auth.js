@@ -1,10 +1,8 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const db = require('../db');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import db from '../db.js';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'school_project_secret';
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
@@ -16,8 +14,7 @@ router.post('/register', async (req, res) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
   try {
     const user = await db.createUser({ username, email, password: hashedPassword });
-    const token = jwt.sign({ id: user.id, username }, JWT_SECRET, { expiresIn: '7d' });
-    res.status(201).json({ token, user: { id: user.id, username, email } });
+    res.status(201).json({ user: { id: user.id, username, email } });
   } catch (err) {
     if (err.message.includes('unique') || err.message.includes('duplicate')) {
       return res.status(409).json({ error: 'Username or email already taken' });
@@ -38,8 +35,7 @@ router.post('/login', async (req, res) => {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 
-  const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '7d' });
-  res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
+  res.json({ user: { id: user.id, username: user.username, email: user.email } });
 });
 
-module.exports = router;
+export default router;

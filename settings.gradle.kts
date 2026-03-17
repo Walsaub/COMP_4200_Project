@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CarSocialMedia"
+rootProject.name = "ProjectLogin"
 include(":app")
  

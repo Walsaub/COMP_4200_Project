@@ -89,6 +89,23 @@ const db = {
   async deletePost(id) {
     await pool.query('DELETE FROM posts WHERE id = $1', [id]);
   },
+
+  // Users
+  async updateUser(id, { username, email, password }) {
+    if (password) {
+      const { rows } = await pool.query(
+        'UPDATE users SET username=$1, email=$2, password=$3 WHERE id=$4 RETURNING id, username, email',
+        [username, email, password, id]
+      );
+      return rows[0];
+    } else {
+      const { rows } = await pool.query(
+        'UPDATE users SET username=$1, email=$2 WHERE id=$3 RETURNING id, username, email',
+        [username, email, id]
+      );
+      return rows[0];
+    }
+  },
 };
 
 export default db;

@@ -1,66 +1,122 @@
 package com.example.carsocialmedia.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.carsocialmedia.R;
+import com.example.carsocialmedia.adapters.PostAdapter;
+import com.example.carsocialmedia.api.ApiClient;
+import com.example.carsocialmedia.api.ApiService;
+import com.example.carsocialmedia.models.Post;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SearchFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class SearchFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private ApiService apiService;
+    private PostAdapter adapter;
+    private List<Post> allPosts = new ArrayList<>();
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private SearchView searchView;
+    private RecyclerView recycler;
+    private TextView emptyText;
+    private ProgressBar progress;
 
-    public SearchFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SearchFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SearchFragment newInstance(String param1, String param2) {
-        SearchFragment fragment = new SearchFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    public SearchFragment() {}
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
+
+        apiService = ApiClient.getApiService();
+
+        searchView = view.findViewById(R.id.search_view);
+        recycler = view.findViewById(R.id.search_recycler);
+        emptyText = view.findViewById(R.id.search_empty);
+        progress = view.findViewById(R.id.search_progress);
+
+        adapter = new PostAdapter(new ArrayList<>());
+        recycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        recycler.setAdapter(adapter);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filterPosts(query);
+                searchView.clearFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterPosts(newText);
+                return true;
+            }
+        });
+
+        loadAllPosts();
+        return view;
+    }
+
+    private void loadAllPosts() {
+        progress.setVisibility(View.VISIBLE);
+        emptyText.setVisibility(View.GONE);
+
+        apiService.getPosts().enqueue(new Callback<List<Post>>() {
+            @Override
+            public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+                if (!isAdded()) return;
+                progress.setVisibility(View.GONE);
+                if (response.isSuccessful() && response.body() != null) {
+                    allPosts = response.body();
+                    filterPosts(searchView.getQuery() != null
+                            ? searchView.getQuery().toString() : "");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Post>> call, Throwable t) {
+                if (!isAdded()) return;
+                progress.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void filterPosts(String query) {
+        String q = query.trim().toLowerCase();
+        List<Post> filtered = new ArrayList<>();
+
+        for (Post post : allPosts) {
+            if (q.isEmpty()
+                    || contains(post.getTitle(), q)
+                    || contains(post.getMake(), q)
+                    || contains(post.getModel(), q)
+                    || contains(post.getDescription(), q)
+                    || contains(post.getUsername(), q)
+                    || String.valueOf(post.getYear()).contains(q)) {
+                filtered.add(post);
+            }
         }
+
+        adapter.updatePosts(filtered);
+        emptyText.setVisibility(!q.isEmpty() && filtered.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false);
+    private boolean contains(String field, String query) {
+        return field != null && field.toLowerCase().contains(query);
     }
 }

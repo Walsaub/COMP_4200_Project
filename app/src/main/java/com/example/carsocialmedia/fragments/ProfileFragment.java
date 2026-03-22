@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.example.carsocialmedia.EditProfileActivity;
 import com.example.carsocialmedia.LoginActivity;
 import com.example.carsocialmedia.R;
+import com.example.carsocialmedia.api.SessionManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class ProfileFragment extends Fragment {
@@ -28,14 +29,11 @@ public class ProfileFragment extends Fragment {
 
     private SharedPreferences sharedPreferences;
 
+    private SessionManager sessionManager;
+
     private static final String PREF_NAME = "CarAppPrefs";
-    private static final String KEY_REGISTERED_USERNAME = "registered_username";
-    private static final String KEY_REGISTERED_EMAIL = "registered_email";
     private static final String KEY_PROFILE_BIO = "profile_bio";
     private static final String KEY_PROFILE_IMAGE_URI = "profile_image_uri";
-    private static final String KEY_REMEMBER = "remember_user";
-    private static final String KEY_SAVED_LOGIN_EMAIL = "saved_login_email";
-    private static final String KEY_SAVED_LOGIN_PASSWORD = "saved_login_password";
 
     public ProfileFragment() {
     }
@@ -58,14 +56,16 @@ public class ProfileFragment extends Fragment {
         btnBackToFeed = view.findViewById(R.id.btnBackToFeed);
         btnLogout = view.findViewById(R.id.btnLogout);
 
+        sessionManager = new SessionManager(requireContext());
+
         sharedPreferences = requireActivity().getSharedPreferences(PREF_NAME, requireActivity().MODE_PRIVATE);
 
         loadProfileData();
 
         btnEditProfile.setOnClickListener(v -> {
-            String username = sharedPreferences.getString(KEY_REGISTERED_USERNAME, "My Profile");
+            String username = sessionManager.getUsername();
             String bio = sharedPreferences.getString(KEY_PROFILE_BIO, "Car Enthusiast");
-            String email = sharedPreferences.getString(KEY_REGISTERED_EMAIL, "user@example.com");
+            String email = sessionManager.getEmail();
 
             Intent intent = new Intent(requireActivity(), EditProfileActivity.class);
             intent.putExtra("username", username);
@@ -82,11 +82,7 @@ public class ProfileFragment extends Fragment {
         });
 
         btnLogout.setOnClickListener(v -> {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(KEY_REMEMBER, false);
-            editor.remove(KEY_SAVED_LOGIN_EMAIL);
-            editor.remove(KEY_SAVED_LOGIN_PASSWORD);
-            editor.apply();
+            sessionManager.clearSession();
 
             Intent intent = new Intent(requireActivity(), LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -103,11 +99,11 @@ public class ProfileFragment extends Fragment {
 
     private void loadProfileData() {
         if (sharedPreferences != null) {
-            String username = sharedPreferences.getString(KEY_REGISTERED_USERNAME, "My Profile");
+            String username = sessionManager.getUsername();
             String bio = sharedPreferences.getString(KEY_PROFILE_BIO, "Car Enthusiast");
             String imageUriString = sharedPreferences.getString(KEY_PROFILE_IMAGE_URI, "");
 
-            tvProfileName.setText(username);
+            tvProfileName.setText(username != null ? username : "My Profile");
             tvProfileBio.setText(bio);
 
             if (!imageUriString.isEmpty()) {

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="@dimen/marketplace_card_margin"
+    app:cardCornerRadius="@dimen/marketplace_card_radius"
+    app:cardElevation="@dimen/marketplace_card_elevation">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/marketplace_card_padding">
+
+        <ImageView
+            android:id="@+id/marketplace_car_image"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/marketplace_image_height"
+            android:scaleType="centerCrop"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/marketplace_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Car"
+            android:textStyle="bold"
+            android:textSize="@dimen/marketplace_title_size"
+            android:layout_marginTop="@dimen/marketplace_title_margin"/>
+
+        <TextView
+            android:id="@+id/marketplace_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="$0"
+            android:textColor="@color/price_color"
+            android:textStyle="bold"
+            android:textSize="@dimen/marketplace_price_size"
+            android:layout_marginTop="@dimen/marketplace_price_margin"/>
+
+        <TextView
+            android:id="@+id/marketplace_mileage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kilometers: 0 km"
+            android:layout_marginTop="@dimen/marketplace_mileage_margin"/>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/description"
+            android:textStyle="bold"
+            android:layout_marginTop="@dimen/marketplace_description_margin"/>
+
+        <TextView
+            android:id="@+id/marketplace_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Good"
+            android:layout_marginTop="@dimen/marketplace_description_content_margin"/>
+
+        <TextView
+            android:id="@+id/marketplace_seller"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Seller: John Doe"
+            android:layout_marginTop="@dimen/marketplace_seller_margin"/>
+
+        <Button
+            android:id="@+id/contact_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/contact_button"
+            android:layout_marginTop="@dimen/marketplace_button_margin"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

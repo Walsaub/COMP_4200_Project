@@ -23,5 +23,8 @@ public interface ApiService {
 
     @GET("api/posts")
     Call<List<Post>> getPosts();
+
+    @POST("api/posts")
+    Call<Post> createPost(@Body Post post);
 }
 

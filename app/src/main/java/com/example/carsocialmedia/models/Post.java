@@ -39,6 +39,9 @@ public class Post {
     @SerializedName("username")
     private String username;
 
+    @SerializedName("email")
+    private String email;
+
     public int getId() { return id; }
     public int getUserId() { return userId; }
     public String getTitle() { return title; }
@@ -51,4 +54,53 @@ public class Post {
     public String getImageUrl() { return imageUrl; }
     public String getCreatedAt() { return createdAt; }
     public String getUsername() { return username; }
+    public String getEmail() { return email; }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void setMileage(double mileage) {
+        this.mileage = mileage;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public void setMake(String make) {
+        this.make = make;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 }

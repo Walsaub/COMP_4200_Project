@@ -3,20 +3,43 @@
     <!--  Height & Width  -->
     <dimen name="image_height">200dp</dimen>
 
+    <dimen name="marketplace_image_height">180dp</dimen>
+
+    <dimen name="my_post_image_height">120dp</dimen>
+
     <!--  Text Size  -->
     <dimen name="user_name_size">16sp</dimen>
     <dimen name="time_size">14sp</dimen>
     <dimen name="title_size">18sp</dimen>
 
+    <dimen name="marketplace_title_size">18sp</dimen>
+    <dimen name="marketplace_price_size">16sp</dimen>
+
     <!--  Paddings  -->
     <dimen name="post_card_padding">10dp</dimen>
+
+    <dimen name="marketplace_card_padding">10dp</dimen>
 
     <!--  Margins  -->
     <dimen name="image_margin_top">8dp</dimen>
     <dimen name="card_margin">8dp</dimen>
     <dimen name="title_margin_top">8dp</dimen>
 
+    <dimen name="marketplace_card_margin">10dp</dimen>
+    <dimen name="marketplace_title_margin">8dp</dimen>
+    <dimen name="marketplace_price_margin">4dp</dimen>
+    <dimen name="marketplace_mileage_margin">4dp</dimen>
+    <dimen name="marketplace_description_margin">6dp</dimen>
+    <dimen name="marketplace_description_content_margin">2dp</dimen>
+    <dimen name="marketplace_seller_margin">6dp</dimen>
+    <dimen name="marketplace_button_margin">10dp</dimen>
+
+    <dimen name="my_post_image_margin">4dp</dimen>
+
     <!--  Corner Radius  -->
     <dimen name="post_card_radius">12dp</dimen>
     <dimen name="post_card_elevation">4dp</dimen>
+
+    <dimen name="marketplace_card_radius">12dp</dimen>
+    <dimen name="marketplace_card_elevation">4dp</dimen>
 </resources>

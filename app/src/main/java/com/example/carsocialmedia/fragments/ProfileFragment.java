@@ -10,25 +10,44 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.carsocialmedia.EditProfileActivity;
 import com.example.carsocialmedia.LoginActivity;
 import com.example.carsocialmedia.R;
+import com.example.carsocialmedia.adapters.MyPostsAdapter;
+import com.example.carsocialmedia.api.ApiClient;
+import com.example.carsocialmedia.api.ApiService;
 import com.example.carsocialmedia.api.SessionManager;
+import com.example.carsocialmedia.models.Post;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
 
-    private TextView tvProfileName, tvProfileBio;
+    private TextView tvProfileName, tvProfileBio, tvPostsCount;
     private Button btnEditProfile, btnBackToFeed, btnLogout;
     private ImageView imgProfile;
 
     private SharedPreferences sharedPreferences;
 
+    private RecyclerView recyclerMyPosts;
+    private MyPostsAdapter adapter;
+    private List<Post> myPosts = new ArrayList<>();
+
+    private ApiService apiService;
     private SessionManager sessionManager;
 
     private static final String PREF_NAME = "CarAppPrefs";
@@ -50,17 +69,27 @@ public class ProfileFragment extends Fragment {
 
         tvProfileName = view.findViewById(R.id.tvProfileName);
         tvProfileBio = view.findViewById(R.id.tvProfileBio);
+        tvPostsCount = view.findViewById(R.id.tvPostsCount);
         imgProfile = view.findViewById(R.id.imgProfile);
 
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
         btnBackToFeed = view.findViewById(R.id.btnBackToFeed);
         btnLogout = view.findViewById(R.id.btnLogout);
 
+        recyclerMyPosts = view.findViewById(R.id.my_posts_recycler_view);
+        recyclerMyPosts.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        recyclerMyPosts.setNestedScrollingEnabled(false);
+
+        adapter = new MyPostsAdapter(getContext(), myPosts);
+        recyclerMyPosts.setAdapter(adapter);
+
+        apiService = ApiClient.getApiService();
         sessionManager = new SessionManager(requireContext());
 
         sharedPreferences = requireActivity().getSharedPreferences(PREF_NAME, requireActivity().MODE_PRIVATE);
 
         loadProfileData();
+        loadMyPosts();
 
         btnEditProfile.setOnClickListener(v -> {
             String username = sessionManager.getUsername();
@@ -95,6 +124,7 @@ public class ProfileFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadProfileData();
+        loadMyPosts();
     }
 
     private void loadProfileData() {
@@ -112,5 +142,36 @@ public class ProfileFragment extends Fragment {
                 imgProfile.setImageResource(android.R.color.transparent);
             }
         }
+    }
+
+    private void loadMyPosts(){
+        int currentUserId = sessionManager.getUserId();
+
+        apiService.getPosts().enqueue(new Callback<List<Post>>() {
+            @Override
+            public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+
+                if (response.isSuccessful() && response.body() != null){
+                    myPosts.clear();
+
+                    for (Post p : response.body()){
+                        if (p.getUserId() == currentUserId){
+                            myPosts.add(p);
+                        }
+                    }
+
+                    adapter.notifyDataSetChanged();
+
+                    tvPostsCount.setText(String.valueOf(myPosts.size()));
+                } else {
+                    Toast.makeText(getContext(), "Response not successful", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Post>> call, Throwable t) {
+                Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

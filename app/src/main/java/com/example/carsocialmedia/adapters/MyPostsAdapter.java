@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,38 +15,29 @@ import com.example.carsocialmedia.models.Post;
 
 import java.util.List;
 
-public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
+public class MyPostsAdapter extends RecyclerView.Adapter<MyPostsAdapter.ViewHolder> {
 
     private List<Post> posts;
     private Context context;
 
-    public PostAdapter(Context context, List<Post> posts){
+    public MyPostsAdapter(Context context, List<Post> posts) {
         this.context = context;
         this.posts = posts;
     }
 
-    public void updatePosts(List<Post> newPosts){
-        this.posts = newPosts;
-        notifyDataSetChanged();
-    }
-
     public static class ViewHolder extends RecyclerView.ViewHolder{
-        TextView username, time, title;
-        ImageView image;
+        ImageView postImage;
 
         public ViewHolder(View itemView){
             super(itemView);
-            username = itemView.findViewById(R.id.user_name_post);
-            time = itemView.findViewById(R.id.time_post);
-            title = itemView.findViewById(R.id.title_post);
-            image = itemView.findViewById(R.id.image_post);
+            postImage = itemView.findViewById(R.id.my_posts_image_card);
         }
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.home_post_card, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_my_post, parent, false);
         return new ViewHolder(view);
     }
 
@@ -55,14 +45,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Post post = posts.get(position);
 
-        holder.title.setText(post.getTitle());
-        holder.username.setText("User: " + post.getUsername());
-        holder.time.setText("Time: " + post.getCreatedAt());
-
         Glide.with(context)
                 .load(post.getImageUrl())
                 .centerCrop()
-                .into(holder.image);
+                .into(holder.postImage);
     }
 
     @Override

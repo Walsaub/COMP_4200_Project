@@ -18,18 +18,18 @@ import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
-    private List<Integer> posts;
+    private List<Post> posts;
     private Context context;
 
-    public PostAdapter(Context context, List<Integer> posts){
+    public PostAdapter(Context context, List<Post> posts){
         this.context = context;
         this.posts = posts;
     }
 
-   /* public void updatePosts(List<Post> newPosts){
+    public void updatePosts(List<Post> newPosts){
         this.posts = newPosts;
         notifyDataSetChanged();
-    }*/
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
         TextView username, time, title;
@@ -53,7 +53,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Integer post = posts.get(position);
+        Post post = posts.get(position);
 
         holder.title.setText(post.toString());
         holder.username.setText("User: " + post);
@@ -66,6 +66,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return posts.size();
+        return posts != null ? posts.size() : 0;
     }
 }

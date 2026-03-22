@@ -11,6 +11,17 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.carsocialmedia.api.ApiClient;
+import com.example.carsocialmedia.api.ApiService;
+import com.example.carsocialmedia.api.AuthResponse;
+import com.example.carsocialmedia.api.LoginRequest;
+import com.example.carsocialmedia.api.SessionManager;
+import com.example.carsocialmedia.models.User;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
@@ -25,14 +36,22 @@ public class LoginActivity extends AppCompatActivity {
     private static final String KEY_SAVED_LOGIN_EMAIL = "saved_login_email";
     private static final String KEY_SAVED_LOGIN_PASSWORD = "saved_login_password";
 
-    private static final String KEY_REGISTERED_USERNAME = "registered_username";
-    private static final String KEY_REGISTERED_EMAIL = "registered_email";
-    private static final String KEY_REGISTERED_PASSWORD = "registered_password";
-    private static final String KEY_PROFILE_BIO = "profile_bio";
+
+    private ApiService apiService;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        apiService = ApiClient.getApiService();
+        sessionManager = new SessionManager(this);
+
+        if (sessionManager.isLoggedIn()){
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        }
+
         setContentView(R.layout.activity_login);
 
         etEmail = findViewById(R.id.etEmail);
@@ -61,35 +80,38 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            String registeredEmail = sharedPreferences.getString(KEY_REGISTERED_EMAIL, "");
-            String registeredPassword = sharedPreferences.getString(KEY_REGISTERED_PASSWORD, "");
+            LoginRequest request = new LoginRequest(enteredEmail, enteredPassword);
 
-            if (registeredEmail.isEmpty() || registeredPassword.isEmpty()) {
-                Toast.makeText(LoginActivity.this,
-                        "Incorrect username/password, please make sure to register first",
-                        Toast.LENGTH_SHORT).show();
-                return;
-            }
+            apiService.login(request).enqueue(new Callback<AuthResponse>() {
+                @Override
+                public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                    if(response.isSuccessful() && response.body() != null){
+                        User user = response.body().getUser();
 
-            if (enteredEmail.equals(registeredEmail) && enteredPassword.equals(registeredPassword)) {
+                        sessionManager.saveSession(user.getId(), user.getUsername(), user.getEmail());
 
-                if (switchRememberUser.isChecked()) {
-                    saveRememberedUser(enteredEmail, enteredPassword);
-                } else {
-                    clearRememberedUser();
+                        if (switchRememberUser.isChecked()){
+                            saveRememberedUser(enteredEmail, enteredPassword);
+                        } else {
+                            clearRememberedUser();
+                        }
+                        Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+
+                        Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(i);
+                        finish();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
-                Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                @Override
+                public void onFailure(Call<AuthResponse> call, Throwable t) {
+                    Toast.makeText(LoginActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
 
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
 
-            } else {
-                Toast.makeText(LoginActivity.this,
-                        "Incorrect username/password, please make sure to register first",
-                        Toast.LENGTH_SHORT).show();
-            }
         });
 
         btnRegister.setOnClickListener(v -> {

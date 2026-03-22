@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--  Height & Width  -->
+    <dimen name="image_height">200dp</dimen>
+
+    <!--  Text Size  -->
+    <dimen name="user_name_size">16sp</dimen>
+    <dimen name="time_size">14sp</dimen>
+    <dimen name="title_size">18sp</dimen>
+
+    <!--  Paddings  -->
+    <dimen name="post_card_padding">10dp</dimen>
+
+    <!--  Margins  -->
+    <dimen name="image_margin_top">8dp</dimen>
+    <dimen name="card_margin">8dp</dimen>
+    <dimen name="title_margin_top">8dp</dimen>
+
+    <!--  Corner Radius  -->
+    <dimen name="post_card_radius">12dp</dimen>
+    <dimen name="post_card_elevation">4dp</dimen>
+</resources>

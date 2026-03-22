@@ -1,69 +1,65 @@
 package com.example.carsocialmedia.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.carsocialmedia.R;
-import com.example.carsocialmedia.models.Post;
 
 import java.util.List;
 
-public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
+public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
-    private List<Post> posts;
+    private List<Integer> posts;
+    private Context context;
 
-    public PostAdapter(List<Post> posts) {
+    public PostAdapter(Context context, List<Integer> posts){
+        this.context = context;
         this.posts = posts;
     }
 
-    public void updatePosts(List<Post> newPosts) {
-        this.posts = newPosts;
-        notifyDataSetChanged();
+    public static class ViewHolder extends RecyclerView.ViewHolder{
+        TextView username, time, title;
+        ImageView image;
+
+        public ViewHolder(View itemView){
+            super(itemView);
+            username = itemView.findViewById(R.id.user_name_post);
+            time = itemView.findViewById(R.id.time_post);
+            title = itemView.findViewById(R.id.title_post);
+            image = itemView.findViewById(R.id.image_post);
+        }
     }
 
     @NonNull
     @Override
-    public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_post, parent, false);
-        return new PostViewHolder(v);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.home_post_card, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
-        Post post = posts.get(position);
-        holder.title.setText(post.getTitle());
-        holder.subtitle.setText(post.getYear() + " " + post.getMake() + " " + post.getModel());
-        holder.price.setText(String.format("$%,.0f", post.getPrice()));
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Integer post = posts.get(position);
 
-        String desc = post.getDescription();
-        if (desc != null && !desc.isEmpty()) {
-            holder.description.setText(desc);
-            holder.description.setVisibility(View.VISIBLE);
-        } else {
-            holder.description.setVisibility(View.GONE);
-        }
+        holder.title.setText(post.toString());
+        holder.username.setText("User: " + post);
+        holder.time.setText("Time: " + post);
+
+        Glide.with(context)
+                .load("https://cdn.pixabay.com/photo/2022/07/04/10/46/vintage-car-7300881_1280.jpg")
+                .into(holder.image);
     }
 
     @Override
     public int getItemCount() {
-        return posts != null ? posts.size() : 0;
-    }
-
-    static class PostViewHolder extends RecyclerView.ViewHolder {
-        TextView title, subtitle, price, description;
-
-        PostViewHolder(@NonNull View itemView) {
-            super(itemView);
-            title = itemView.findViewById(R.id.post_title);
-            subtitle = itemView.findViewById(R.id.post_subtitle);
-            price = itemView.findViewById(R.id.post_price);
-            description = itemView.findViewById(R.id.post_description);
-        }
+        return posts.size();
     }
 }

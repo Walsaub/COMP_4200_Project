@@ -113,7 +113,7 @@ public class SearchFragment extends Fragment {
             }
         }
 
-        adapter.updatePosts(filtered);
+        adapter.updateSearchs(filtered);
         emptyText.setVisibility(!q.isEmpty() && filtered.isEmpty() ? View.VISIBLE : View.GONE);
     }
 

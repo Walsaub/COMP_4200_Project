@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.carsocialmedia.R;
+import com.example.carsocialmedia.models.Post;
 
 import java.util.List;
 
@@ -24,6 +25,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         this.context = context;
         this.posts = posts;
     }
+
+   /* public void updatePosts(List<Post> newPosts){
+        this.posts = newPosts;
+        notifyDataSetChanged();
+    }*/
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
         TextView username, time, title;

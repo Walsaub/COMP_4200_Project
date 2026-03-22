@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.carsocialmedia.R;
 import com.example.carsocialmedia.adapters.PostAdapter;
+import com.example.carsocialmedia.adapters.SearchAdapter;
 import com.example.carsocialmedia.api.ApiClient;
 import com.example.carsocialmedia.api.ApiService;
 import com.example.carsocialmedia.models.Post;
@@ -28,7 +29,7 @@ import retrofit2.Response;
 public class SearchFragment extends Fragment {
 
     private ApiService apiService;
-    private PostAdapter adapter;
+    private SearchAdapter adapter;
     private List<Post> allPosts = new ArrayList<>();
 
     private SearchView searchView;
@@ -49,7 +50,7 @@ public class SearchFragment extends Fragment {
         emptyText = view.findViewById(R.id.search_empty);
         progress = view.findViewById(R.id.search_progress);
 
-        adapter = new PostAdapter(new ArrayList<>());
+        adapter = new SearchAdapter(new ArrayList<>());
         recycler.setLayoutManager(new LinearLayoutManager(getContext()));
         recycler.setAdapter(adapter);
 

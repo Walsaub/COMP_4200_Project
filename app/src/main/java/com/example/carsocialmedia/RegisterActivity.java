@@ -14,6 +14,15 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.carsocialmedia.api.ApiClient;
+import com.example.carsocialmedia.api.ApiService;
+import com.example.carsocialmedia.api.AuthResponse;
+import com.example.carsocialmedia.api.RegisterRequest;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText etUsername, etEmail, etPassword, etConfirmPassword;
@@ -21,18 +30,14 @@ public class RegisterActivity extends AppCompatActivity {
 
     private TextView ruleLength, ruleUpper, ruleLower, ruleNumber, ruleSpecial;
 
-    private SharedPreferences sharedPreferences;
-
-    private static final String PREF_NAME = "CarAppPrefs";
-    private static final String KEY_REGISTERED_USERNAME = "registered_username";
-    private static final String KEY_REGISTERED_EMAIL = "registered_email";
-    private static final String KEY_REGISTERED_PASSWORD = "registered_password";
-    private static final String KEY_PROFILE_BIO = "profile_bio";
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        apiService = ApiClient.getApiService();
 
         etUsername = findViewById(R.id.etUsername);
         etEmail = findViewById(R.id.etRegisterEmail);
@@ -48,7 +53,6 @@ public class RegisterActivity extends AppCompatActivity {
         ruleNumber = findViewById(R.id.ruleNumber);
         ruleSpecial = findViewById(R.id.ruleSpecial);
 
-        sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
         etPassword.addTextChangedListener(new TextWatcher() {
             @Override
@@ -107,19 +111,25 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(KEY_REGISTERED_USERNAME, username);
-            editor.putString(KEY_REGISTERED_EMAIL, email);
-            editor.putString(KEY_REGISTERED_PASSWORD, password);
-            editor.putString(KEY_PROFILE_BIO, "Car Enthusiast");
-            editor.apply();
+            RegisterRequest request = new RegisterRequest(username, email, password);
 
-            Toast.makeText(RegisterActivity.this,
-                    "Registration successful!",
-                    Toast.LENGTH_SHORT).show();
+            apiService.register(request).enqueue(new Callback<AuthResponse>() {
+                @Override
+                public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                    if (response.isSuccessful() && response.body() != null){
+                        Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                        finish();
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "Registration failed (email may already exist)", Toast.LENGTH_SHORT).show();
+                    }
+                }
 
-            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-            finish();
+                @Override
+                public void onFailure(Call<AuthResponse> call, Throwable t) {
+                    Toast.makeText(RegisterActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         btnBackToLogin.setOnClickListener(v -> finish());

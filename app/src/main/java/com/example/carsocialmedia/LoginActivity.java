@@ -36,10 +36,6 @@ public class LoginActivity extends AppCompatActivity {
     private static final String KEY_SAVED_LOGIN_EMAIL = "saved_login_email";
     private static final String KEY_SAVED_LOGIN_PASSWORD = "saved_login_password";
 
-    private static final String KEY_REGISTERED_USERNAME = "registered_username";
-    private static final String KEY_REGISTERED_EMAIL = "registered_email";
-    private static final String KEY_REGISTERED_PASSWORD = "registered_password";
-    private static final String KEY_PROFILE_BIO = "profile_bio";
 
     private ApiService apiService;
     private SessionManager sessionManager;

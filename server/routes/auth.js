@@ -23,6 +23,31 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// PUT /api/auth/users/:id
+router.put('/users/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { user_id, username, email, password } = req.body;
+
+  if (user_id !== id) {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+  if (!username || !email) {
+    return res.status(400).json({ error: 'username and email are required' });
+  }
+
+  const hashedPassword = password ? bcrypt.hashSync(password, 10) : null;
+
+  try {
+    const user = await db.updateUser(id, { username, email, password: hashedPassword });
+    res.json({ user });
+  } catch (err) {
+    if (err.message.includes('unique') || err.message.includes('duplicate')) {
+      return res.status(409).json({ error: 'Username or email already taken' });
+    }
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;

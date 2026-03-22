@@ -1,5 +1,6 @@
 package com.example.carsocialmedia.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.carsocialmedia.R;
 import com.example.carsocialmedia.adapters.PostAdapter;
@@ -53,12 +55,12 @@ public class HomeFragment extends Fragment {
 
         apiService = ApiClient.getApiService();
 
-        loadPosts();
+        loadPosts(HomeFragment.super.getContext());
 
         return view;
     }
 
-    private void loadPosts(){
+    private void loadPosts(Context context){
         apiService.getPosts().enqueue(new Callback<List<Post>>() {
             @Override
             public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
@@ -67,13 +69,13 @@ public class HomeFragment extends Fragment {
                     posts.addAll(response.body());
                     adapter.notifyDataSetChanged();
                 } else {
-                    Log.e("API_ERROR", "Response not successful");
+                    Toast.makeText(context, "Response not successful", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Post>> call, Throwable t) {
-                Log.e("API_ERROR", t.getMessage());
+                Toast.makeText(context, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

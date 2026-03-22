@@ -14,6 +14,17 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.carsocialmedia.api.ApiClient;
+import com.example.carsocialmedia.api.ApiService;
+import com.example.carsocialmedia.api.AuthResponse;
+import com.example.carsocialmedia.api.SessionManager;
+import com.example.carsocialmedia.api.UpdateUserRequest;
+import com.example.carsocialmedia.models.User;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class EditProfileActivity extends AppCompatActivity {
 
     private TextView tvBack, tvChangePhoto;
@@ -22,6 +33,8 @@ public class EditProfileActivity extends AppCompatActivity {
     private ImageView imgEditProfile;
 
     private SharedPreferences sharedPreferences;
+    private ApiService apiService;
+    private SessionManager sessionManager;
 
     private static final String PREF_NAME = "CarAppPrefs";
     private static final String KEY_REGISTERED_USERNAME = "registered_username";
@@ -45,6 +58,9 @@ public class EditProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
+
+        apiService = ApiClient.getApiService();
+        sessionManager = new SessionManager(this);
 
         tvBack = findViewById(R.id.tvBack);
         tvChangePhoto = findViewById(R.id.tvChangePhoto);
@@ -115,19 +131,43 @@ public class EditProfileActivity extends AppCompatActivity {
                 return;
             }
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(KEY_REGISTERED_USERNAME, updatedUsername);
-            editor.putString(KEY_REGISTERED_EMAIL, updatedEmail);
-            editor.putString(KEY_PROFILE_BIO, updatedBio);
+            int userId = sessionManager.getUserId();
 
-            if (selectedImageUri != null) {
-                editor.putString(KEY_PROFILE_IMAGE_URI, selectedImageUri.toString());
-            }
+            UpdateUserRequest request = new UpdateUserRequest(
+                    userId, updatedUsername, updatedEmail, null
+            );
 
-            editor.apply();
+            apiService.updateUser(userId, request).enqueue(new Callback<AuthResponse>() {
+                @Override
+                public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                    if (response.isSuccessful() && response.body() != null){
+                        User updatedUser = response.body().getUser();
 
-            Toast.makeText(EditProfileActivity.this, "Profile updated!", Toast.LENGTH_SHORT).show();
-            finish();
+                        sessionManager.saveSession(
+                                updatedUser.getId(), updatedUser.getUsername(), updatedUser.getEmail()
+                        );
+
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString(KEY_PROFILE_BIO, updatedBio);
+
+                        if (selectedImageUri != null) {
+                            editor.putString(KEY_PROFILE_IMAGE_URI, selectedImageUri.toString());
+                        }
+
+                        editor.apply();
+
+                        Toast.makeText(EditProfileActivity.this, "Profile updated!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        Toast.makeText(EditProfileActivity.this, "Update failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AuthResponse> call, Throwable t) {
+                    Toast.makeText(EditProfileActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
     }
 }

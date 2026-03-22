@@ -4,12 +4,14 @@ plugins {
 
 android {
     namespace = "com.example.carsocialmedia"
-    compileSdk = 35
+    compileSdk {
+        version = release(36)
+    }
 
     defaultConfig {
         applicationId = "com.example.carsocialmedia"
         minSdk = 29
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 

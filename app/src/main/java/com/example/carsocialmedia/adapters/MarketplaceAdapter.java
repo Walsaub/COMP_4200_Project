@@ -1,13 +1,14 @@
 package com.example.carsocialmedia.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -72,7 +73,9 @@ public class MarketplaceAdapter extends RecyclerView.Adapter<MarketplaceAdapter.
                 .into(holder.carImg);
 
         holder.contact.setOnClickListener( v -> {
-            Toast.makeText(context, "Contacting seller...", Toast.LENGTH_SHORT).show();
+            Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+            emailIntent.setData(Uri.parse("mailto:" + post.getEmail()));
+            context.startActivity(emailIntent);
         });
     }
 

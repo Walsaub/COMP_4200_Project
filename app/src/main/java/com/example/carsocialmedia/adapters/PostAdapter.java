@@ -55,7 +55,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Post post = posts.get(position);
 
-        holder.title.setText(post.toString());
+        holder.title.setText(post.getTitle());
         holder.username.setText("User: " + post.getUsername());
         holder.time.setText("Time: " + post.getCreatedAt());
 

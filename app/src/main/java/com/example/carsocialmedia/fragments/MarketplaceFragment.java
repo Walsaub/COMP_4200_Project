@@ -63,7 +63,7 @@ public class MarketplaceFragment extends Fragment {
                     posts.clear();
 
                     for (Post p : response.body()){
-                        if (p.getPrice() > 0){
+                        if (p.getPrice() > 1){
                             posts.add(p);
                         }
                     }

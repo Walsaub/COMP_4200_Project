@@ -60,7 +60,7 @@ const db = {
 
   async getAllPosts() {
     const { rows } = await pool.query(
-      `SELECT posts.*, users.username
+      `SELECT posts.*, users.username, users.email
        FROM posts JOIN users ON posts.user_id = users.id
        ORDER BY posts.created_at DESC`
     );

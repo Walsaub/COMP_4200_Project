@@ -39,6 +39,9 @@ public class Post {
     @SerializedName("username")
     private String username;
 
+    @SerializedName("email")
+    private String email;
+
     public int getId() { return id; }
     public int getUserId() { return userId; }
     public String getTitle() { return title; }
@@ -51,4 +54,5 @@ public class Post {
     public String getImageUrl() { return imageUrl; }
     public String getCreatedAt() { return createdAt; }
     public String getUsername() { return username; }
+    public String getEmail() { return email; }
 }

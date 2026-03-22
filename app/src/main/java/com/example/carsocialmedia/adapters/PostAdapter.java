@@ -56,11 +56,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         Post post = posts.get(position);
 
         holder.title.setText(post.toString());
-        holder.username.setText("User: " + post);
-        holder.time.setText("Time: " + post);
+        holder.username.setText("User: " + post.getUsername());
+        holder.time.setText("Time: " + post.getCreatedAt());
 
         Glide.with(context)
-                .load("https://cdn.pixabay.com/photo/2022/07/04/10/46/vintage-car-7300881_1280.jpg")
+                .load(post.getImageUrl())
+                .centerCrop()
                 .into(holder.image);
     }
 

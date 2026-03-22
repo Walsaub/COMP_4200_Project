@@ -5,10 +5,8 @@
     android:layout_height="match_parent"
     tools:context=".fragments.MarketplaceFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/marketplace_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Marketplace" />
-
+        android:layout_height="match_parent" />
 </FrameLayout>

@@ -1,8 +1,5 @@
 package com.example.carsocialmedia.fragments;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -15,12 +12,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import com.example.carsocialmedia.EditProfileActivity;
-import com.example.carsocialmedia.LoginActivity;
 import com.example.carsocialmedia.R;
 import com.example.carsocialmedia.adapters.PostAdapter;
 import com.example.carsocialmedia.api.ApiClient;

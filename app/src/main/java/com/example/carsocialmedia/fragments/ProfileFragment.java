@@ -1,5 +1,6 @@
 package com.example.carsocialmedia.fragments;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -24,6 +25,7 @@ import com.example.carsocialmedia.R;
 import com.example.carsocialmedia.adapters.MyPostsAdapter;
 import com.example.carsocialmedia.api.ApiClient;
 import com.example.carsocialmedia.api.ApiService;
+import com.example.carsocialmedia.api.DeleteRequest;
 import com.example.carsocialmedia.api.SessionManager;
 import com.example.carsocialmedia.models.Post;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -76,20 +78,23 @@ public class ProfileFragment extends Fragment {
         btnBackToFeed = view.findViewById(R.id.btnBackToFeed);
         btnLogout = view.findViewById(R.id.btnLogout);
 
+        apiService = ApiClient.getApiService();
+        sessionManager = new SessionManager(requireContext());
+
         recyclerMyPosts = view.findViewById(R.id.my_posts_recycler_view);
         recyclerMyPosts.setLayoutManager(new GridLayoutManager(getContext(), 3));
         recyclerMyPosts.setNestedScrollingEnabled(false);
 
-        adapter = new MyPostsAdapter(getContext(), myPosts);
+        adapter = new MyPostsAdapter(getContext(), myPosts, (post, position) -> {
+            showDeleteDialog(post, position);
+        });
         recyclerMyPosts.setAdapter(adapter);
 
-        apiService = ApiClient.getApiService();
-        sessionManager = new SessionManager(requireContext());
+
 
         sharedPreferences = requireActivity().getSharedPreferences(PREF_NAME, requireActivity().MODE_PRIVATE);
 
         loadProfileData();
-        loadMyPosts();
 
         btnEditProfile.setOnClickListener(v -> {
             String username = sessionManager.getUsername();
@@ -171,6 +176,44 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onFailure(Call<List<Post>> call, Throwable t) {
                 Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showDeleteDialog(Post post, int position){
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete Post")
+                .setMessage("Are you sure you want to delete this post?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    deletePost(post, position);
+                }).setNegativeButton("Cancel", null).show();
+    }
+
+    private void deletePost(Post post, int position){
+        int userId = sessionManager.getUserId();
+
+        apiService.deletePost(post.getId(), new DeleteRequest(userId)).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    int index = myPosts.indexOf(post);
+                    if (index != -1) {
+                        myPosts.remove(index);
+                        adapter.notifyItemRemoved(index);
+                    }
+
+                    tvPostsCount.setText(String.valueOf(myPosts.size()));
+
+                    Toast.makeText(getContext(), "Post deleted", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Toast.makeText(getContext(), "Delete failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -20,9 +20,15 @@ public class MyPostsAdapter extends RecyclerView.Adapter<MyPostsAdapter.ViewHold
     private List<Post> posts;
     private Context context;
 
-    public MyPostsAdapter(Context context, List<Post> posts) {
+    public interface OnPostClickListener{
+        void onPostClick(Post post, int position);
+    }
+    private OnPostClickListener listener;
+
+    public MyPostsAdapter(Context context, List<Post> posts, OnPostClickListener listener) {
         this.context = context;
         this.posts = posts;
+        this.listener = listener;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
@@ -49,6 +55,13 @@ public class MyPostsAdapter extends RecyclerView.Adapter<MyPostsAdapter.ViewHold
                 .load(post.getImageUrl())
                 .centerCrop()
                 .into(holder.postImage);
+
+        holder.itemView.setOnLongClickListener( v -> {
+            if (listener != null){
+                listener.onPostClick(post, position);
+            }
+            return true;
+        });
     }
 
     @Override

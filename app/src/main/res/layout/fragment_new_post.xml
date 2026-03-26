@@ -58,16 +58,52 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:text="Car Name"
+                android:text="Title"
                 android:textColor="#000000"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <EditText
-                android:id="@+id/carName"
+                android:id="@+id/carTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="Car Make"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/carMake"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="e.g., Dodge"
+                android:inputType="text"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="Car Model"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/carModel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g., Journy"
                 android:inputType="text"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
@@ -113,7 +149,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="e.g., 5000"
-                    android:inputType="numberDecimal"
+                    android:inputType="number"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
                     android:textSize="16sp" />
@@ -128,11 +164,11 @@
                     android:textStyle="bold" />
 
                 <EditText
-                    android:id="@+id/carMeter"
+                    android:id="@+id/carMileage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="e.g., 25,000"
-                    android:inputType="numberDecimal"
+                    android:inputType="number"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
                     android:textSize="16sp" />
@@ -204,12 +240,12 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/btnSaveChanges"
+                android:id="@+id/btnSubmit"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="22dp"
                 android:backgroundTint="#3B82F6"
-                android:text="Save Changes"
+                android:text="Submit"
                 android:textAllCaps="false"
                 android:textColor="#FFFFFF"
                 android:textSize="18sp"

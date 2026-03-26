@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -50,8 +51,8 @@ public class SearchFragment extends Fragment {
         emptyText = view.findViewById(R.id.search_empty);
         progress = view.findViewById(R.id.search_progress);
 
-        adapter = new SearchAdapter(new ArrayList<>());
-        recycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new SearchAdapter(new ArrayList<>(), getContext());
+        recycler.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recycler.setAdapter(adapter);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

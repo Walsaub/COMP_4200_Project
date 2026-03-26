@@ -1,13 +1,16 @@
 package com.example.carsocialmedia.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.carsocialmedia.R;
 import com.example.carsocialmedia.models.Post;
 
@@ -15,9 +18,11 @@ import java.util.List;
 
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
     private List<Post> posts;
+    private Context context;
 
-    public SearchAdapter(List<Post> posts) {
+    public SearchAdapter(List<Post> posts, Context context) {
         this.posts = posts;
+        this.context = context;
     }
 
     public void updateSearchs(List<Post> newPosts) {
@@ -35,17 +40,13 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Post post = posts.get(position);
-        holder.title.setText(post.getTitle());
-        holder.subtitle.setText(post.getYear() + " " + post.getMake() + " " + post.getModel());
-        holder.price.setText(String.format("$%,.0f", post.getPrice()));
+        holder.user.setText(post.getUsername());
+        holder.carInfo.setText(post.getCar());
 
-        String desc = post.getDescription();
-        if (desc != null && !desc.isEmpty()) {
-            holder.description.setText(desc);
-            holder.description.setVisibility(View.VISIBLE);
-        } else {
-            holder.description.setVisibility(View.GONE);
-        }
+        Glide.with(context)
+                .load(post.getImageUrl())
+                .centerCrop()
+                .into(holder.carImage);
     }
 
     @Override
@@ -54,14 +55,14 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView title, subtitle, price, description;
+        TextView user, carInfo;
+        ImageView carImage;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
-            title = itemView.findViewById(R.id.post_title);
-            subtitle = itemView.findViewById(R.id.post_subtitle);
-            price = itemView.findViewById(R.id.post_price);
-            description = itemView.findViewById(R.id.post_description);
+            user = itemView.findViewById(R.id.creator_name);
+            carInfo = itemView.findViewById(R.id.car_info);
+            carImage = itemView.findViewById(R.id.car_image);
         }
     }
 }

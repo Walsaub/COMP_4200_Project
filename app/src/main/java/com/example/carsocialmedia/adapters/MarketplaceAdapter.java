@@ -60,7 +60,7 @@ public class MarketplaceAdapter extends RecyclerView.Adapter<MarketplaceAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Post post = posts.get(position);
 
-        holder.title.setText(post.getMake() + " " + post.getModel() + " " + post.getYear());
+        holder.title.setText(post.getCar());
         holder.price.setText(String.format("$%,.0f", post.getPrice()));;
         holder.mileage.setText("Kilometers: " + post.getMileage() + " km");
         holder.descContent.setText(post.getDescription());

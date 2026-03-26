@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -73,9 +74,22 @@ public class MarketplaceAdapter extends RecyclerView.Adapter<MarketplaceAdapter.
                 .into(holder.carImg);
 
         holder.contact.setOnClickListener( v -> {
-            Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-            emailIntent.setData(Uri.parse("mailto:" + post.getEmail()));
-            context.startActivity(emailIntent);
+
+            String email = post.getEmail();
+            String subject = "Regarding your " + post.getCar();
+            String body = "Hi " + post.getUsername() + ",\n\n" +
+                    "I'm interested in your " + post.getCar() + ".\n" +
+                    "Is it still available?\n\nThanks!";
+
+            subject = Uri.encode(subject);
+            body = Uri.encode(body);
+
+            Uri uri = Uri.parse("mailto:" + email + "?subject=" + subject + "&body=" + body);
+
+            Intent emailIntent = new Intent(Intent.ACTION_SENDTO, uri);
+
+            context.startActivity(Intent.createChooser(emailIntent, "Send Email"));
+
         });
     }
 

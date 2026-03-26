@@ -14,6 +14,7 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.carsocialmedia.api.ApiClient;
 import com.example.carsocialmedia.api.ApiService;
 import com.example.carsocialmedia.api.AuthResponse;
@@ -37,8 +38,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private SessionManager sessionManager;
 
     private static final String PREF_NAME = "CarAppPrefs";
-    private static final String KEY_REGISTERED_USERNAME = "registered_username";
-    private static final String KEY_REGISTERED_EMAIL = "registered_email";
+
     private static final String KEY_PROFILE_BIO = "profile_bio";
     private static final String KEY_PROFILE_IMAGE_URI = "profile_image_uri";
 
@@ -48,7 +48,9 @@ public class EditProfileActivity extends AppCompatActivity {
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
                 if (uri != null) {
                     selectedImageUri = uri;
-                    imgEditProfile.setImageURI(uri);
+                    Glide.with(this)
+                            .load(uri)
+                            .into(imgEditProfile);
                 } else {
                     Toast.makeText(EditProfileActivity.this, "No photo selected", Toast.LENGTH_SHORT).show();
                 }
@@ -76,16 +78,8 @@ public class EditProfileActivity extends AppCompatActivity {
         String bio = getIntent().getStringExtra("bio");
         String email = getIntent().getStringExtra("email");
 
-        if (username == null || username.isEmpty()) {
-            username = sharedPreferences.getString(KEY_REGISTERED_USERNAME, "My Profile");
-        }
-
         if (bio == null || bio.isEmpty()) {
             bio = sharedPreferences.getString(KEY_PROFILE_BIO, "Car Enthusiast");
-        }
-
-        if (email == null || email.isEmpty()) {
-            email = sharedPreferences.getString(KEY_REGISTERED_EMAIL, "user@example.com");
         }
 
         etUsername.setText(username);
@@ -94,8 +88,10 @@ public class EditProfileActivity extends AppCompatActivity {
 
         String savedImageUri = sharedPreferences.getString(KEY_PROFILE_IMAGE_URI, "");
         if (!savedImageUri.isEmpty()) {
-            selectedImageUri = Uri.parse(savedImageUri);
-            imgEditProfile.setImageURI(selectedImageUri);
+            Uri uri = Uri.parse(savedImageUri);
+            Glide.with(this)
+                    .load(uri)
+                    .into(imgEditProfile);
         }
 
         tvBack.setOnClickListener(v -> finish());

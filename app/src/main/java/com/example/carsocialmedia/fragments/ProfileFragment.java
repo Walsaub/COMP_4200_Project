@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.carsocialmedia.EditProfileActivity;
 import com.example.carsocialmedia.LoginActivity;
 import com.example.carsocialmedia.R;
@@ -142,7 +143,9 @@ public class ProfileFragment extends Fragment {
             tvProfileBio.setText(bio);
 
             if (!imageUriString.isEmpty()) {
-                imgProfile.setImageURI(Uri.parse(imageUriString));
+                Glide.with(this)
+                        .load(Uri.parse(imageUriString))
+                        .into(imgProfile);
             } else {
                 imgProfile.setImageResource(android.R.color.transparent);
             }

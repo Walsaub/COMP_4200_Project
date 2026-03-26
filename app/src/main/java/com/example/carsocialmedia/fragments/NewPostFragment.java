@@ -5,6 +5,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.os.Bundle;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -27,6 +30,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.carsocialmedia.EditProfileActivity;
 import com.example.carsocialmedia.R;
 import com.example.carsocialmedia.api.ApiClient;
@@ -44,20 +52,16 @@ import retrofit2.Response;
 
 public class NewPostFragment extends Fragment {
 
-    private CheckBox toggleSaleInfo, chkBoxRust, chkBoxBodyCond;
+    private CheckBox toggleSaleInfo;
     private LinearLayout saleInfoSection;
-    private TextView uploadImageBtn;
     private ImageView previewImage;
-    private Uri selectedImageUri;
     private ApiService apiService;
     private SessionManager sessionManager;
-    private SharedPreferences sharedPreferences;
-    private static final String PREF_NAME = "CarAppPrefs";
 
 
-    private EditText etTitle, etMake, etModel, etPrice, etMileage, etCarHistory;
+    private EditText etTitle, etMake, etModel, etPrice, etMileage, etCarHistory, etImageUrl, etYear;
     private Button btnSave;
-    private static final String KEY_PROFILE_IMAGE_URI = "profile_image_uri";
+    private boolean isImageValid = false;
 
 
 
@@ -67,10 +71,6 @@ public class NewPostFragment extends Fragment {
 
 
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,13 +79,9 @@ public class NewPostFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_new_post, container, false);
 
         // Set up the View
-        uploadImageBtn = view.findViewById(R.id.uploadBtn);
         previewImage = view.findViewById(R.id.selectedImg);
-        uploadImageBtn.setOnClickListener(v -> {
-            pickMedia.launch(new PickVisualMediaRequest.Builder()
-                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                    .build());
-        });
+        etImageUrl = view.findViewById(R.id.carImage);
+
         toggleSaleInfo = view.findViewById(R.id.chkbxSaleInfo);
         saleInfoSection = view.findViewById(R.id.saleInfoSection);
         toggleSaleInfo.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -99,18 +95,43 @@ public class NewPostFragment extends Fragment {
         // Save to the DB
         apiService = ApiClient.getApiService();
         sessionManager = new SessionManager(this.getContext());
-        sharedPreferences = getContext().getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
 
         etTitle = view.findViewById(R.id.carTitle);
         etMake = view.findViewById(R.id.carMake);
         etModel = view.findViewById(R.id.carModel);
+        etYear = view.findViewById(R.id.carYear);
         etPrice = view.findViewById(R.id.carPrice);
         etMileage = view.findViewById(R.id.carMileage);
         etCarHistory = view.findViewById(R.id.carHistory);
-        chkBoxRust = view.findViewById(R.id.carRust);
-        chkBoxBodyCond = view.findViewById(R.id.carBody);
         btnSave = view.findViewById(R.id.btnSubmit);
+
+        etImageUrl.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus){
+                String url = etImageUrl.getText().toString().trim();
+
+                if (url.isEmpty()) return;
+
+                Glide.with(this)
+                        .load(url)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                                isImageValid = false;
+                                Toast.makeText(getContext(), "Invalid image URL", Toast.LENGTH_SHORT).show();
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                                isImageValid = true;
+                                return false;
+                            }
+                        })
+                        .into(previewImage);
+            }
+
+        });
 
 
         btnSave.setOnClickListener(v -> {
@@ -120,20 +141,61 @@ public class NewPostFragment extends Fragment {
             newPost.setUsername(sessionManager.getUsername());
             newPost.setEmail(sessionManager.getEmail());
 
-            String title = etTitle.getText().toString();
-            newPost.setTitle(title);
-            if (!selectedImageUri.toString().isEmpty()) {
-                newPost.setImageUrl(selectedImageUri.toString());
+            String title = etTitle.getText().toString().trim();
+            String imageUrl = etImageUrl.getText().toString().trim();
+
+            if (imageUrl.isEmpty() || !isImageValid){
+                etImageUrl.setError("Image URL is Invalid");
+                etImageUrl.requestFocus();
+                return;
             }
-            //newPost.setImageUrl("imageuri");
-            newPost.setMake(etMake.getText().toString());
-            newPost.setModel(etModel.getText().toString());
-            newPost.setYear(new Date().getYear());
+
+            if (title.isEmpty()){
+                etTitle.setError("Title is required");
+                etTitle.requestFocus();
+                return;
+            }
+
+
+
+            newPost.setTitle(title);
+            newPost.setImageUrl(imageUrl);
+
+            String make = etMake.getText().toString().trim();
+            String model = etModel.getText().toString().trim();
+            String year = etYear.getText().toString().trim();
+
+            if (make.isEmpty()){
+                etMake.setError("Make is required");
+                etMake.requestFocus();
+                return;
+            }
+
+            if (model.isEmpty()){
+                etModel.setError("Model is required");
+                etModel.requestFocus();
+                return;
+            }
+
+            if (year.isEmpty()){
+                etYear.setError("Year is required");
+                etYear.requestFocus();
+                return;
+            }
+            newPost.setMake(make);
+            newPost.setModel(model);
+            try {
+                newPost.setYear(Integer.parseInt(year));
+            } catch (Exception e){
+                etYear.setError("Invalid year");
+                etYear.requestFocus();
+                return;
+            }
 
             if(toggleSaleInfo.isChecked()) {
-                String price = etPrice.getText().toString();
-                String mileage = etMileage.getText().toString();
-                String description = etCarHistory.getText().toString();
+                String price = etPrice.getText().toString().trim();
+                String mileage = etMileage.getText().toString().trim();
+                String description = etCarHistory.getText().toString().trim();
                 if (price.isEmpty()) {
                     etPrice.setError("Price is required");
                     etPrice.requestFocus();
@@ -149,8 +211,21 @@ public class NewPostFragment extends Fragment {
                     etCarHistory.requestFocus();
                     return;
                 }
-                newPost.setPrice(Integer.parseInt(price));
-                newPost.setMileage(Integer.parseInt(mileage));
+
+                try {
+                    newPost.setPrice(Integer.parseInt(price));
+                } catch (Exception e){
+                    etPrice.setError("Invalid price");
+                    etPrice.requestFocus();
+                    return;
+                }
+                try {
+                    newPost.setMileage(Integer.parseInt(mileage));
+                } catch (Exception e){
+                    etMileage.setError("Invalid mileage");
+                    etMileage.requestFocus();
+                    return;
+                }
                 newPost.setDescription(description);
             } else {
                 newPost.setPrice(1);
@@ -158,11 +233,6 @@ public class NewPostFragment extends Fragment {
                 newPost.setDescription("Car History");
             }
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            if (selectedImageUri != null) {
-                editor.putString(KEY_PROFILE_IMAGE_URI, selectedImageUri.toString());
-            }
-            editor.apply();
 
             apiService.createPost(newPost).enqueue(new Callback<Post>() {
                 @Override
@@ -171,7 +241,7 @@ public class NewPostFragment extends Fragment {
                         Toast.makeText(NewPostFragment.this.getContext(), "Post created successful", LENGTH_SHORT).show();
                         BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_nav);
                         if (bottomNav != null) {
-                            bottomNav.setSelectedItemId(R.id.marketplace_nav);
+                            bottomNav.setSelectedItemId(R.id.home_nav);
                         }
                     } else {
                         Toast.makeText(NewPostFragment.this.getContext(), "Post creation failed" + userId, LENGTH_SHORT).show();
@@ -189,13 +259,5 @@ public class NewPostFragment extends Fragment {
         return view;
     }
 
-    private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
-            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-                if (uri != null) {
-                    selectedImageUri = uri;
-                    previewImage.setImageURI(uri);
-                } else {
-                    Toast.makeText(NewPostFragment.this.getContext(),"No photo Selected", LENGTH_SHORT).show();
-                }
-            });
+
 }
